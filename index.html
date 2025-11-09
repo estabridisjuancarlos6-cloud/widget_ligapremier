@@ -1,10 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tabla de Posiciones Premier League</title>
   <style>
+    @font-face {
+      font-family: 'BlissLight';
+      src: url('font/BlissLight Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
     :root {
       --text-color: #1a1a1a;
       --header-color: #202a44;
@@ -16,14 +24,16 @@
     }
 
     body {
-      font-family: 'Segoe UI', sans-serif;
+      font-family: "BlissLight", sans-serif;
       color: var(--text-color);
       margin: 0;
       padding: 0;
       width: 100%;
-      height: auto; /* ✅ antes: 100% */
+      height: auto;
+      /* ✅ antes: 100% */
       display: block;
-      overflow: hidden; /* ✅ sin scroll */
+      overflow: hidden;
+      /* ✅ sin scroll */
       box-sizing: border-box;
     }
 
@@ -33,17 +43,28 @@
       margin: 0 auto;
       padding: 10px;
       box-sizing: border-box;
-      transform: scale(calc(min(1, (100vh / 420)))); /* ✅ escala automática si la altura es baja */
+      transform: scale(calc(min(1, (100vh / 420))));
+      /* ✅ escala automática si la altura es baja */
       transform-origin: top center;
     }
 
-    h2 {
+    .titulo {
       font-size: clamp(1rem, 2.5vw, 1.3rem);
       font-weight: 600;
       color: var(--header-color);
       margin-bottom: 8px;
       text-align: left;
-      padding-left: 6px;
+      position: relative;
+    }
+
+    .titulo::after {
+      content: "";
+      position: absolute;
+      bottom: -0.5vh;
+      left: 0;
+      width: 80vw;
+      height: 0.2vh;
+      background: var(--header-color);
     }
 
     table {
@@ -51,11 +72,12 @@
       border-collapse: collapse;
       background: white;
       border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
       overflow: hidden;
     }
 
-    th, td {
+    th,
+    td {
       text-align: center;
       padding: clamp(3px, 0.8vw, 6px);
       font-size: clamp(10px, 2vw, 13px);
@@ -108,10 +130,21 @@
       display: inline-block;
     }
 
-    .win { background: var(--green); }
-    .draw { background: var(--gray); }
-    .lose { background: var(--red); }
-    .empty { background: #eaeaea; }
+    .win {
+      background: var(--green);
+    }
+
+    .draw {
+      background: var(--gray);
+    }
+
+    .lose {
+      background: var(--red);
+    }
+
+    .empty {
+      background: #eaeaea;
+    }
 
     /* 🔹 Responsive */
     @media (max-width: 600px) {
@@ -127,13 +160,20 @@
       }
 
       /* Ocultar columnas menos relevantes */
-      th:nth-child(3), td:nth-child(3),
-      th:nth-child(4), td:nth-child(4),
-      th:nth-child(5), td:nth-child(5),
-      th:nth-child(6), td:nth-child(6),
-      th:nth-child(7), td:nth-child(7),
-      th:nth-child(8), td:nth-child(8),
-      th:nth-child(9), td:nth-child(9) {
+      th:nth-child(3),
+      td:nth-child(3),
+      th:nth-child(4),
+      td:nth-child(4),
+      th:nth-child(5),
+      td:nth-child(5),
+      th:nth-child(6),
+      td:nth-child(6),
+      th:nth-child(7),
+      td:nth-child(7),
+      th:nth-child(8),
+      td:nth-child(8),
+      th:nth-child(9),
+      td:nth-child(9) {
         display: none;
       }
 
@@ -147,7 +187,8 @@
         height: 16px;
       }
 
-      th, td {
+      th,
+      td {
         padding: 4px;
         font-size: 11px;
       }
@@ -165,10 +206,11 @@
     }
   </style>
 </head>
+
 <body>
 
   <div class="container">
-    <h2>Tabla de Posiciones Premier League</h2>
+    <h2 class="titulo">Tabla de Posiciones Premier League</h2>
     <table id="standingsTable">
       <thead>
         <tr>
@@ -245,5 +287,5 @@
   </script>
 
 </body>
-</html>
 
+</html>
