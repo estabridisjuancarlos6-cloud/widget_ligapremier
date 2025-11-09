@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tabla de Posiciones Premier League</title>
+  <style>
+    :root {
+      --text-color: #1a1a1a;
+      --header-color: #202a44;
+      --gray-light: #f7f8fc;
+      --border-color: #e5e7eb;
+      --green: #22c55e;
+      --red: #ef4444;
+      --gray: #9ca3af;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--gray-light);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: auto; /* ✅ antes: 100% */
+      display: block;
+      overflow: hidden; /* ✅ sin scroll */
+      box-sizing: border-box;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 10px;
+      box-sizing: border-box;
+      transform: scale(calc(min(1, (100vh / 420)))); /* ✅ escala automática si la altura es baja */
+      transform-origin: top center;
+    }
+
+    h2 {
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
+      font-weight: 600;
+      color: var(--header-color);
+      margin-bottom: 8px;
+      text-align: left;
+      padding-left: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+
+    th, td {
+      text-align: center;
+      padding: clamp(3px, 0.8vw, 6px);
+      font-size: clamp(10px, 2vw, 13px);
+      word-break: break-word;
+    }
+
+    th {
+      background: #fafafa;
+      color: #555;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    tr:not(:last-child) {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td.team {
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    td.team img {
+      width: clamp(14px, 4vw, 20px);
+      height: clamp(14px, 4vw, 20px);
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    td b {
+      font-weight: 600;
+      color: var(--header-color);
+    }
+
+    .last-results {
+      display: flex;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .circle {
+      width: clamp(6px, 1.5vw, 10px);
+      height: clamp(6px, 1.5vw, 10px);
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .win { background: var(--green); }
+    .draw { background: var(--gray); }
+    .lose { background: var(--red); }
+    .empty { background: #eaeaea; }
+
+    /* 🔹 Responsive */
+    @media (max-width: 600px) {
+      h2 {
+        font-size: clamp(0.9rem, 3vw, 1.1rem);
+        text-align: center;
+        padding: 0;
+      }
+
+      table {
+        box-shadow: none;
+        border-radius: 6px;
+      }
+
+      /* Ocultar columnas menos relevantes */
+      th:nth-child(3), td:nth-child(3),
+      th:nth-child(4), td:nth-child(4),
+      th:nth-child(5), td:nth-child(5),
+      th:nth-child(6), td:nth-child(6),
+      th:nth-child(7), td:nth-child(7),
+      th:nth-child(8), td:nth-child(8),
+      th:nth-child(9), td:nth-child(9) {
+        display: none;
+      }
+
+      td.team {
+        max-width: 90px;
+        font-size: 0.8rem;
+      }
+
+      td img {
+        width: 16px;
+        height: 16px;
+      }
+
+      th, td {
+        padding: 4px;
+        font-size: 11px;
+      }
+
+      tr {
+        height: auto;
+      }
+    }
+
+    @media (max-width: 400px) {
+      td.team {
+        max-width: 70px;
+        font-size: 0.7rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Tabla de Posiciones Premier League</h2>
+    <table id="standingsTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Club</th>
+          <th>PJ</th>
+          <th>G</th>
+          <th>E</th>
+          <th>P</th>
+          <th>GF</th>
+          <th>GC</th>
+          <th>DG</th>
+          <th>Pts</th>
+          <th>Últimos 5</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    const API_KEY = '6ac8ce1ea0e65a6443b8aa8f6d604571';
+    const LEAGUE_ID = 39;
+    const SEASON = 2023;
+
+    async function cargarTabla() {
+      try {
+        const res = await fetch(`https://v3.football.api-sports.io/standings?league=${LEAGUE_ID}&season=${SEASON}`, {
+          headers: { 'x-apisports-key': API_KEY }
+        });
+        const data = await res.json();
+        if (!data.response || data.response.length === 0) throw new Error('No se encontró información.');
+
+        const standings = data.response[0].league.standings[0].slice(0, 6);
+        const tbody = document.querySelector('#standingsTable tbody');
+        tbody.innerHTML = '';
+
+        standings.forEach(team => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${team.rank}</td>
+            <td class="team"><img src="${team.team.logo}" alt=""> ${team.team.name}</td>
+            <td>${team.all.played}</td>
+            <td>${team.all.win}</td>
+            <td>${team.all.draw}</td>
+            <td>${team.all.lose}</td>
+            <td>${team.all.goals.for}</td>
+            <td>${team.all.goals.against}</td>
+            <td>${team.goalsDiff}</td>
+            <td><b>${team.points}</b></td>
+            <td><div class="last-results">${renderUltimos5(team.form)}</div></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (error) {
+        console.error(error);
+        document.querySelector('#standingsTable tbody').innerHTML =
+          `<tr><td colspan="11">Error al cargar datos</td></tr>`;
+      }
+    }
+
+    function renderUltimos5(form) {
+      if (!form) return '<span class="circle empty"></span>'.repeat(5);
+      const formArray = form.slice(-5).split('');
+      return formArray.map(r => {
+        if (r === 'W') return '<span class="circle win"></span>';
+        if (r === 'D') return '<span class="circle draw"></span>';
+        if (r === 'L') return '<span class="circle lose"></span>';
+        return '<span class="circle empty"></span>';
+      }).join('');
+    }
+
+    cargarTabla();
+  </script>
+
+</body>
+</html>
