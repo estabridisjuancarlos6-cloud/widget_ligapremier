@@ -4,6 +4,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy"
+  content="
+    default-src 'self';
+    script-src
+      'self'
+      'sha256-UNsdoY9bAsQWc2eF9X1I+eV7IubOPQVj9v2AijiWTk8='
+      'sha256-vvt4KWwuNr51XfE5m+hzeNEGhiOfZzG97ccfqGsPwvE=';
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' data: https://media.api-sports.io;
+    connect-src
+      'self'
+      https://v3.football.api-sports.io;
+    font-src 'self';
+    object-src 'none';
+    frame-src 'none';
+    base-uri 'self';
+  ">
+
+
   <title>Tabla de Posiciones Premier League</title>
   <style>
     @font-face {
@@ -288,6 +307,3 @@
 </body>
 
 </html>
-
-
-
