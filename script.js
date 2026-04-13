@@ -1,66 +1,52 @@
-const API_KEY = '3d4da372dd6dc7ae7cfb6f879efaa7c08de90436d9883da2ca03684b1f9f1ae5';
-  const LEAGUE_ID = 152; // Premier League hombres
+    const API_KEY = '4774ef32f5a3b9a0872602de8498554e';
+    const LEAGUE_ID = 39;
+    const SEASON = 2023;
 
-  async function cargarTabla() {
-    try {
+    async function cargarTabla() {
+      try {
+        const res = await fetch(`https://v3.football.api-sports.io/standings?league=${LEAGUE_ID}&season=${SEASON}`, {
+          headers: { 'x-apisports-key': API_KEY }
+        });
+        const data = await res.json();
+        if (!data.response || data.response.length === 0) throw new Error('No se encontró información.');
 
-      const res = await fetch(
-        `https://apiv2.allsportsapi.com/football/?met=Standings&APIkey=${API_KEY}&leagueId=${LEAGUE_ID}`
-      );
+        const standings = data.response[0].league.standings[0].slice(0, 6);
+        const tbody = document.querySelector('#standingsTable tbody');
+        tbody.innerHTML = '';
 
-      const data = await res.json();
-
-      if (!data.result || !data.result.total) {
-        throw new Error('No se encontró información.');
+        standings.forEach(team => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${team.rank}</td>
+            <td class="team"><img src="${team.team.logo}" alt=""> ${team.team.name}</td>
+            <td>${team.all.played}</td>
+            <td>${team.all.win}</td>
+            <td>${team.all.draw}</td>
+            <td>${team.all.lose}</td>
+            <td>${team.all.goals.for}</td>
+            <td>${team.all.goals.against}</td>
+            <td>${team.goalsDiff}</td>
+            <td><b>${team.points}</b></td>
+            <td><div class="last-results">${renderUltimos5(team.form)}</div></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (error) {
+        console.error(error);
+        document.querySelector('#standingsTable tbody').innerHTML =
+          `<tr><td colspan="11">Error al cargar datos</td></tr>`;
       }
-
-      // Top 6 como en tu código original
-      const standings = data.result.total.slice(0, 6);
-
-      const tbody = document.querySelector('#standingsTable tbody');
-      tbody.innerHTML = '';
-
-      standings.forEach(team => {
-
-        const tr = document.createElement('tr');
-
-        tr.innerHTML = `
-          <td>${team.standing_place}</td>
-          <td class="team">
-            <img src="${team.team_logo || ''}" alt="">
-            ${team.standing_team}
-          </td>
-          <td>${team.standing_P}</td>
-          <td>${team.standing_W}</td>
-          <td>${team.standing_D}</td>
-          <td>${team.standing_L}</td>
-          <td>${team.standing_F || '-'}</td>
-          <td>${team.standing_A || '-'}</td>
-          <td>${team.standing_GD}</td>
-          <td><b>${team.standing_PTS}</b></td>
-        `;
-
-        tbody.appendChild(tr);
-      });
-
-    } catch (error) {
-      console.error(error);
-      document.querySelector('#standingsTable tbody').innerHTML =
-        `<tr><td colspan="11">Error al cargar datos</td></tr>`;
     }
-  }
 
-  function renderUltimos5(form) {
-    if (!form) return '<span class="circle empty"></span>'.repeat(5);
+    function renderUltimos5(form) {
+      if (!form) return '<span class="circle empty"></span>'.repeat(5);
+      const formArray = form.slice(-5).split('');
+      return formArray.map(r => {
+        if (r === 'W') return '<span class="circle win"></span>';
+        if (r === 'D') return '<span class="circle draw"></span>';
+        if (r === 'L') return '<span class="circle lose"></span>';
+        return '<span class="circle empty"></span>';
+      }).join('');
+    }
 
-    const formArray = form.slice(-5).split('');
-
-    return formArray.map(r => {
-      if (r === 'W') return '<span class="circle win"></span>';
-      if (r === 'D') return '<span class="circle draw"></span>';
-      if (r === 'L') return '<span class="circle lose"></span>';
-      return '<span class="circle empty"></span>';
-    }).join('');
-  }
-
-  cargarTabla();
+    cargarTabla();
